@@ -1,0 +1,39 @@
+---
+title: "Simulations"
+author: "Jeff Hoover"
+date: "November 27, 2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(dplyr)
+
+data2 <- as.data.frame(rnorm(1000000))
+
+data2$sorted <- data2$`rnorm(1e+06)`
+
+data2 <- data2 %>%
+  arrange(sorted) %>%
+  select(sorted) %>%
+  mutate(transformed = (sorted * 15) + 100)
+```
+
+
+```{r}
+data2 %>%
+  ggplot(., aes(x = transformed)) +
+  stat_fu(fill = "red", color = "black") + 
+  ggtitle("Normal Distribution of Simulated Data") +
+  labs(x = "Distribution", y = "Count") + 
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+
+```{r}
+plot(density(data2$transformed))
+```
+
+
