@@ -11,22 +11,67 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(dplyr)
 
-data2 <- as.data.frame(rnorm(1000000))
+men <- as.data.frame(rnorm(1000000))
+women <- as.data.frame(rnorm(1000000))
 
-data2$sorted <- data2$`rnorm(1e+06)`
+men$sorted <- men$`rnorm(1e+06)`
+women$sorted <- women$`rnorm(1e+06)`
 
-data2 <- data2 %>%
+#agreeableness
+men <- men %>%
   arrange(sorted) %>%
   select(sorted) %>%
-  mutate(transformed = (sorted * 15) + 100)
+  mutate(transformed = (sorted * 10) + 49.05,
+         sex = 1)
+
+women <- women %>%
+  arrange(sorted) %>%
+  select(sorted) %>%
+  mutate(transformed = (sorted * 10) + 50.95, 
+         sex = 0)
+
+gender <- rbind(women, men)
+
+peopleOriented <- gender %>%
+  filter(transformed > 70) %>%
+  group_by(sex) %>%
+  mutate(count = n()) %>%
+  distinct(sex, .keep_all = TRUE) %>%
+  ungroup() %>%
+  mutate(total = sum(count), 
+         percent = count / total)
+
+#neurotocism
+menD <- men %>%
+  arrange(sorted) %>%
+  select(sorted) %>%
+  mutate(transformed = (sorted * 10) + 48,
+         sex = 1)
+
+womenD <- women %>%
+  arrange(sorted) %>%
+  select(sorted) %>%
+  mutate(transformed = (sorted * 10) + 52, 
+         sex = 0)
+
+genderN <- rbind(womenD, menD)
+
+neuro <- genderN %>%
+  filter(transformed > 60) %>%
+  group_by(sex) %>%
+  mutate(count = n()) %>%
+  distinct(sex, .keep_all = TRUE) %>%
+  ungroup() %>%
+  mutate(total = sum(count), 
+         percent = count / total)
 ```
 
 
 ```{r}
-data2 %>%
-  ggplot(., aes(x = transformed)) +
-  stat_fu(fill = "red", color = "black") + 
-  ggtitle("Normal Distribution of Simulated Data") +
+gender %>%
+  ggplot(.) +
+  geom_bar(aes(x = transformed, fill = sex), color = "black") + 
+  ggtitle("Simulated Data for Agreeableness") +
   labs(x = "Distribution", y = "Count") + 
   theme(plot.title = element_text(hjust = 0.5))
 ```
